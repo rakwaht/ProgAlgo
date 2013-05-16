@@ -12,9 +12,10 @@ string * dati;
 int ** tab;
 int ** m;
 vector < pair<int,char> > v;
+vector < vector < pair <int,char> > > vettori;
 
 int check_row(int indice,int t);
-int recursive(int i, int j, char c);
+int recursive(int i, int j, char c,int indice);
 int sol();
 int calcola(int,int);
 void raggruppa(string s);
@@ -24,17 +25,26 @@ int main(){
 	ofstream out("output.txt");
 	in >> N >> M >> T;
 	T += 1;
-	dati = new string [N];	
+	dati = new string [N];
 	tab = new int * [N];
 	for(int i=0; i<N; i++){
 		tab[i] = new int [T];
 	}	
-	for(int i=0; i<N; i++){
+	/*for(int i=0; i<N; i++){
 		in >> dati[i];
+	}*/
+	
+	for(int i=0; i<N; i++){
+		string buffer;
+		in >> buffer;
+		v.clear();
+		raggruppa(buffer);
+		vettori.push_back(v);
 	}
 	
-	//sol();
-	cout << check_row(2,3) << endl;
+
+	sol();
+	//cout << check_row(0,1) << endl;
 	/*for(int i=0; i<N; i++){
 		for(int j=0; j<T; j++){
 			cout << tab[i][j] << " " ;
@@ -49,39 +59,44 @@ int main(){
 
 int check_row(int indice,int t){
 	int cont=0;
-	v.clear();
-	raggruppa(dati[indice]);
-	m = new int * [v.size()];
-	for(int i=0; i<v.size(); i++){
+	int temp;	
+	if(t>=vettori[indice].size()){
+		temp = M;
+	}
+	else{
+	m = new int * [vettori[indice].size()];
+	for(int i=0; i<vettori[indice].size(); i++){
 		m[i]= new int [t+1];
 	}
-	for(int i=0; i<v.size(); i++){
+	for(int i=0; i<vettori[indice].size(); i++){
 		for(int j=0; j<=t; j++){
 			m[i][j]=-1;
 		}
 	}
-	int temp = recursive(v.size()-1,t,'a');	
-	for(int i=0; i<v.size(); i++){
+	temp = recursive(vettori[indice].size()-1,t,'a',indice);	
+	/*for(int i=0; i<v.size(); i++){
 		for(int j=0; j<=t; j++){
 			cout << m[i][j] << " " ;
 		}
 		cout << endl;
-	}	
-	for(int i=0; i<v.size();i++){
-		delete m[i];
 	}
-	delete m;
+	cout << endl << endl << endl;*/
+	for(int i=0; i<vettori[indice].size();i++){
+		delete [] m[i];
+	}
+	delete [] m;
+	}
 	return temp;
 }
 
 int sol(){
 	//base
-	for(int i=0; i<=T; i++){
+	for(int i=0; i<T; i++){
 		tab[0][i] = check_row(0,i); 
 	}
 	int i=1;
 	while(i<N){
-		for(int j=0;j<=T;j++){
+		for(int j=0;j<T;j++){
 			tab[i][j] = calcola(i,j);
 		}
 	 i++;
@@ -92,17 +107,17 @@ int sol(){
 int calcola(int i, int j){
 	int max=0;
 	int indice = j;
-	for(int k=0; k<=j; k++){
+	for(int k=0; k<=j; k++,indice--){
 		int temp = check_row(i,indice)+tab[i-1][k];
 		if(temp>max)max = temp;
-		indice -= 1;
 	}
+	cout << endl << endl;
 
 	return max;
 }
 
-int recursive(int i, int j, char c){
-  cout << "Analizzo oggetto : " << v[i].first << " " << v[i].second << "  con travestimenti : " << j;
+int recursive(int i, int j, char c,int indice){
+  cout << "Analizzo oggetto : " << v[i].first << " " << v[i].second  <<"  con travestimenti : " << i << " " << j;
   if ( j < 0 ){
     cout << "  RITORNO : -infinito" << endl;
     return -10000;
@@ -111,17 +126,28 @@ int recursive(int i, int j, char c){
     cout << "  RITORNO : 0" << endl;
     return 0;
   }
-
+  else if(j==0){
+	cout << "J = 0" << endl;
+	int cont = 0;
+	int h = i-1;
+	cout << "I:" << i << endl;
+	while(h>=0){
+		cout << h << " " << vettori[indice][h].second << " " << vettori[indice][h].first << " "<<indice << endl;
+		cont += vettori[indice][h].first;
+		h = h-2;
+	}
+	return cont;
+  }
   else{
-    if( v[i].second == c ){
-      cout << "  RITORNO : char uguale" << endl;
-      return  v[i].first + recursive( i-1, j, c );
+    if( vettori[indice][i].second == c ){
+    	cout << "  RITORNO : char uguale" << endl;
+      return vettori[indice][i].first + recursive( i-1, j, c, indice );
     }
     else{
       cout << "  RITORNO : ricorsione" << endl;
-      return  max( v[i].first + recursive( i-1, j-1, v[i].second ), recursive( i-1, j, c ) );
+      return max( vettori[indice][i].first + recursive( i-1, j-1, vettori[indice][i].second, indice ), recursive( i-1, j, c, indice) );
     }
-  }
+   }
 }
 
 void raggruppa(string s){
