@@ -34,11 +34,7 @@ int main(){
 	}
 	
 	//sol();
-	cout << check_row(0,0) << endl;
-	cout << check_row(1,0) << endl;
-	cout << check_row(2,0) << endl;
-	cout << check_row(3,0) << endl;
-	cout << check_row(4,0) << endl;
+	cout << check_row(1,1) << endl;
 	/*for(int i=0; i<N; i++){
 		for(int j=0; j<T; j++){
 			cout << tab[i][j] << " " ;
@@ -64,7 +60,7 @@ int check_row(int indice,int t){
 			m[i][j]=-1;
 		}
 	}
-	int temp = recursive(v.size()-1,t,'a');	
+	int temp = recursive(0,t,'a');	
 	for(int i=0; i<v.size(); i++){
 		for(int j=0; j<=t; j++){
 			cout << m[i][j] << " " ;
@@ -106,20 +102,22 @@ int calcola(int i, int j){
 }
 
 int recursive(int i, int j, char c){
-	if(i < 0 || j < 0 ){
+	cout << i << " " << j << " " << c << endl;
+	if(i == v.size()){
 		return 0;
 	}
+	else if(j<0) return -10000;
 	else{
 		if( m[i][j] != -1 ){
 			return m[i][j];
 		}
 		else{
 			if( v[i].second == c ){
-				m[i][j] = v[i].first + recursive(i-1,j,c);
+				m[i][j] = v[i].first + recursive(i+1,j,c);
 				return m[i][j];
 			}
 			else{
-			   m[i][j] = max(v[i].first + recursive(i-1,j-1,v[i].second),recursive(i-1,j,c));
+			   m[i][j] = max(v[i].first + recursive(i+1,j-1,v[i].second),recursive(i+1,j,c));
 			   return m[i][j];
 			}
 		}
